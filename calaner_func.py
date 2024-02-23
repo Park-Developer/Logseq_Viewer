@@ -1,0 +1,15 @@
+def convert_weekday(week_idx):
+    if week_idx==0:
+        return "(Mon)"
+    elif week_idx==1:
+        return "(Tue)"
+    elif week_idx==2:
+        return "(Wed)"
+    elif week_idx==3:
+        return "(Tue)"
+    elif week_idx==4:
+        return "(Fri)"
+    elif week_idx==5:
+        return "(Sat)"
+    elif week_idx==6:
+        return "(Sun)"
