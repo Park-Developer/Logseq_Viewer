@@ -1,4 +1,5 @@
 import viewer_config
+import os
 
 # task info get
 def get_task_status(task_detail):
@@ -94,3 +95,81 @@ def get_subtask_info(main_task_list,main_task_idx,sub_task_idx):
 def get_progress_color(main_task_idx,sub_task_idx)->str:
 
     return viewer_config.progress_bar_color[main_task_idx][sub_task_idx]
+
+
+def get_directory_todo_list(progress_page_list,directory):
+        # [1] Searching 'pages' directory
+    pages_addr=viewer_config.logseq_address+"\\"+directory #"\\pages"
+    
+    all_page_list=os.listdir(pages_addr)
+
+    todo_pages_list=[]
+
+    # filtering directory page to exclude progress task pages
+    for page in all_page_list:
+        if page not in progress_page_list:
+            todo_pages_list.append(page)
+
+    all_todolist=[] # todo list with deadline
+
+    # [2] Get Task list
+    for td_page in todo_pages_list:
+        # [2]-1 Page Open
+        td_page_addr=viewer_config.logseq_address+"\\"+directory+"\\"+td_page
+
+        log_file=open(td_page_addr,'r',encoding="utf-8")
+        td_lines=log_file.readlines()
+        
+        for line in td_lines:
+            is_get, status,priority,sub_task_name=get_task_status(line)
+
+            if is_get==True:
+                todo_detail={}
+                todo_detail["sub_task_name"]=sub_task_name
+                todo_detail["status"]=status
+                todo_detail["priority"]=priority
+                        
+
+                # sub task condition : Doing or Todo
+                if todo_detail["status"]=="TODO" or todo_detail["status"]=="DOING":
+                    all_todolist.append(todo_detail)
+                    
+            else:
+                if len(all_todolist)>=1 and "DEADLINE:" in line:
+                    dead_temp=line[line.index("DEADLINE:")+11:].replace('>','').split(" ")
+        
+                    all_todolist[-1]["deadline"]=dead_temp[0].strip()
+        
+        log_file.close()
+
+
+    return all_todolist
+
+
+
+
+def get_todo_list(progress_page_list):
+    # [1] Searching 'pages' directory
+    pages_todo_list=get_directory_todo_list(progress_page_list,"pages")
+
+
+    # [2] Searching 'journals' directory
+    journals_todo_list=get_directory_todo_list(progress_page_list,"journals")
+
+    # [3] Sum of both directory's todo list
+    all_todolist=pages_todo_list+journals_todo_list
+
+    # [4] Divide Task List
+    deadline_tasklist=[]
+    normal_tasklist=[]
+
+    for tsk in all_todolist:
+        if "deadline" in tsk:
+            deadline_tasklist.append(tsk)
+        else:
+            normal_tasklist.append(tsk)
+    
+    
+    return deadline_tasklist, normal_tasklist
+
+

@@ -5,43 +5,14 @@ import calaner_func
 import viewer_config
 import html_func
 
+# Get Main Task List from a specific page
 main_task_list=logseq_func.get_maintask_list(viewer_config.page_address, viewer_config.page_name)
 
+# set html config
+html_func.set_html_config() 
 
 
-html_start="""
-<!DOCTYPE html>
-
-
-<html lang="kr">
-
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Log View</title>
-</head>
-
-<body>
-<div>
-  <h1>Logseq View</h1>
-</div>
-
-
-<div>
-  <h3 class="TASK_LIST__title">Task Schedule</h3>
-</div>
-"""
-html_func.create_Html(html_start)
-
-
-
-# Table
-
-'''
-table start
-'''
-
+''' --------------- [TASK SCHEDULE TABLE begin] --------------- '''
 
 table_start='<table class="Schedule_Table">'
 html_func.create_Html(table_start)
@@ -55,6 +26,7 @@ html_func.create_Html(table_header_start)
 
 now=datetime.now() # View from today
 
+progress_table_header=''
 for idx in range(viewer_config.logView_Date_Range+2):
 
     if idx==0: # Main Task Name Col
@@ -63,10 +35,11 @@ for idx in range(viewer_config.logView_Date_Range+2):
         table_header_line='<th class="Schedule_Table__tasklist">Sub Task</th>'
     else:      # Day
         idx_date=now+timedelta(days=idx-2) # from today    
-        table_header_line='<th class="Schedule_Table__day{0}">{1}</th>'.format(idx,str(idx_date.month)+"/"+str(idx_date.day)+calaner_func.convert_weekday(idx_date.weekday()))
-        
-    html_func.create_Html(table_header_line)
+        table_header_line='<th class="Schedule_Table__day{0}">{1}</th>'.format(idx,str(idx_date.month)+"/"+str(idx_date.day)+"\n"+calaner_func.convert_weekday(idx_date.weekday()))
 
+    progress_table_header=progress_table_header+table_header_line+"\n"
+
+html_func.create_Html(progress_table_header)
 
 
 table_header_end='</tr>'
@@ -174,24 +147,123 @@ for mt_idx in range(len(main_task_list)):
 table_end='</table>'
 html_func.create_Html(table_end)
 
+''' --------------- [TASK SCHEDULE TABLE end] --------------- '''
+
+
+progress_page_list=[]
+
+
+for mt in main_task_list:
+    progress_page_list.append(mt["main_task"]+".md")
+
+deadline_tasklist, normal_tasklist=logseq_func.get_todo_list(progress_page_list)
 
 
 
-'''
-table end
-'''
 
+''' --------------- [TODO WITH DEADLINE TABLE begin] --------------- '''
+# [1] Create Task with Deadline Table
 
+task_dead_table_header="""
+    
+    <div>
+        <h3 style="color: blue;" class="Todo_List">Todo List With Deadline</h3>
+    </div>
 
-
-todo_header="""
-
-<div>
-  <h3 class="Todo_List">Todo List</h3>
-</div>
-
+    <table class="Deadline_Todo_Table">
+       <tr class="Deadline_Todo_Header">               
+    
 """
-html_func.create_Html(todo_header)
+
+for idx in range(viewer_config.logView_Date_Range+1):
+
+    if idx==0: # Main Task Name Col
+        table_header_line='<th class="Deadline_Todo">Task</th>'
+    else:      # Day
+        idx_date=now+timedelta(days=idx-1) # from today    
+        table_header_line='<th class="Deadline_Todo__day{0}">{1}</th>'.format(idx,str(idx_date.month)+"/"+str(idx_date.day)+"\n"+calaner_func.convert_weekday(idx_date.weekday()))
+
+    task_dead_table_header=task_dead_table_header+table_header_line+"\n"
+
+task_dead_table_header=task_dead_table_header+'</tr>\n'
+html_func.create_Html(task_dead_table_header)
+
+
+# [2] Create Deadline Table Row and Col
+deadline_task_row_info=''
+
+for dead_td_idx in range(len(deadline_tasklist)):
+    dead_td_row_start='<tr class="Dead_Todo_ROW{0} {1} {2} {3}">'.format(dead_td_idx+1,
+                                                                             deadline_tasklist[dead_td_idx]["sub_task_name"],
+                                                                             deadline_tasklist[dead_td_idx]["status"],
+                                                                             deadline_tasklist[dead_td_idx]["priority"]
+                                                                             )
+
+    deadline_task_row_info=deadline_task_row_info+dead_td_row_start
+
+    for dead_day_idx in range(viewer_config.logView_Date_Range+1):
+        if dead_day_idx==0:
+            td_dead_col='<td class="Dead_Todo_ROW{0}_COL{1}">{2}</td>'.format(dead_td_idx+1,dead_day_idx+1,deadline_tasklist[dead_td_idx]["sub_task_name"])
+
+            deadline_task_row_info=deadline_task_row_info+td_dead_col
+        else:
+            tsk_deadline=datetime.strptime(deadline_tasklist[dead_td_idx]["deadline"],viewer_config.logView_date_format)
+            cal_day=datetime.today()+timedelta(days=dead_day_idx-1)
+
+            date_diff=tsk_deadline-cal_day
+
+            if deadline_tasklist[dead_td_idx]["status"]=="DOING":
+                
+                if (date_diff.days>=0):
+                    task_bg_color=logseq_func.get_progress_color(dead_td_idx,3) # 3 ->color setting [tbd]
+                else:
+                    task_bg_color=viewer_config.basic_bar_color
+
+            elif deadline_tasklist[dead_td_idx]["status"]=="TODO":
+                if (date_diff.days==0):
+                    task_bg_color=logseq_func.get_progress_color(mt_idx,st_idx)
+                else:
+                    task_bg_color=viewer_config.basic_bar_color
+
+            td_dead_col='<td class="Dead_Todo_ROW{0}_COL{1} {2}" bgcolor="{3}"></td>'.format(dead_td_idx+1,
+                                                                                                 dead_day_idx+1,
+                                                                                                 datetime.today()+timedelta(days=dead_day_idx-1),
+                                                                                                 task_bg_color)
+
+            deadline_task_row_info=deadline_task_row_info+td_dead_col
+
+
+    deadline_task_row_info=deadline_task_row_info+'</tr>'
+html_func.create_Html(deadline_task_row_info)
+
+html_func.create_Html("</table>")
+''' --------------- [TODO WITH DEADLINE TABLE end] --------------- '''
+
+
+
+
+''' --------------- [NORMAL TODO TABLE begin] --------------- '''
+html_func.create_Html("""
+    <div>
+        <h3 style="color: blue;" class="Todo_List">Todo List Without Deadline</h3>
+    </div>
+    
+    <div>
+        <h5>Priority A</h5>
+    </div>
+    
+    <div>
+        <h5>Priority B</h5>
+    </div>
+    
+    <div>
+        <h5>Priority C</h5>
+    </div>
+                               
+""")
+
+''' --------------- [NORMAL TODO TABLE end] --------------- '''
+
 
 
 html_end="""
