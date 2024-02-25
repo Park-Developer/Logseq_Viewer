@@ -12,7 +12,10 @@ logView_Date_Range=30
 
 
 # UI Setting
+
+# Background Color
 basic_bar_color="#FFFFFF" # white
+
 
 progress_bar_color=[
     ["#D6E4FF","#ADC8FF","#84A9FF","#6690FF","#3366FF","#254EDB","#1939B7","#102693","#091A7A"], # Blue
@@ -22,3 +25,10 @@ progress_bar_color=[
     ["#FFE7D9","#FFC9B3","#FFA48D","#FF8171","#FF4842","#DB3039","#B72136","#931531","#7A0C2E"]  # Red
     
 ]
+
+# Text Color
+basic_text_color="#000000" # black
+delayed_text_color= "#FF0000" # red
+
+# Todo List CSS
+priority_todo_align_CSS='style="display: flex; flex-direction:column; flex:1"'

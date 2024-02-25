@@ -25,6 +25,23 @@ def set_html_config():
             <title>Log View</title>
         </head>
 
+        <style>
+            .A_Todo_List {
+
+            }
+                
+            .B_Todo_List {
+                
+            }
+                
+            .C_Todo_List {
+                
+            }
+                
+            .X_Todo_List {
+                
+            }
+        </style>
         <body>
             <div>
                 <h1>
