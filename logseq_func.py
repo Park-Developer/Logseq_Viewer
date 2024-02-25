@@ -4,11 +4,11 @@ import os
 # task info get
 def get_task_status(task_detail):
     def get_task_priority(line):
-        if 'A' in line:
+        if '[#A]' in line:
             return ('A',line.index('A'))
-        elif 'B' in line:
+        elif '[#B]' in line:
             return ('B',line.index('B'))
-        elif 'C' in line:
+        elif '[#C]' in line:
             return ('C',line.index('C'))
         else:
             return ("None",-1)
@@ -18,11 +18,14 @@ def get_task_status(task_detail):
             if get_task_priority(task_detail):
                 priority, prior_idx=get_task_priority(task_detail)
             
+            # Get Task Name
             if priority=="None":
-                sub_task_name=task_detail[task_detail.index(status)+1:].strip()
+                sub_task_name=task_detail[task_detail.index(status)+len(status):].strip()
+     
                 return (True,status,"None",sub_task_name)
             else:
-                sub_task_name=task_detail[prior_idx+1:].strip()
+                sub_task_name=task_detail[task_detail.index(priority)+len(priority)+1:].strip()
+         
                 return (True,status,priority,sub_task_name)
 
 
@@ -48,7 +51,7 @@ def get_maintask_list(page_address,page_name):
             try:
                 subtask_file=open(page_address+main_task_name+".md",'r',encoding="utf-8")
             except FileNotFoundError:
-                print("file not found!")
+                print("[Err1] file not found!")
             else:
                 sub_line=subtask_file.readlines()
                 
