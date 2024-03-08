@@ -30,5 +30,7 @@ progress_bar_color=[
 basic_text_color="#000000" # black
 delayed_text_color= "#FF0000" # red
 
+weekend_text_color="#FF0000" # red
+
 # Todo List CSS
 priority_todo_align_CSS='style="display: flex; flex-direction:column; flex:1"'

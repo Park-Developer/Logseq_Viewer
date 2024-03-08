@@ -26,6 +26,34 @@ def set_html_config():
         </head>
 
         <style>
+            .Schedule_Table {
+                border-collapse: collapse;
+            }
+            .Schedule_Table__tasklist {
+                border: 1px solid black;
+           
+            }
+            .Schedule_Table__day {
+                border: 1px solid black;
+            }
+            .MainID {
+                border: 1px solid black;
+            }
+            .SubID {
+                border: 1px dotted gray;
+            }
+
+                
+            .Deadline_Todo_Table{
+                border-collapse: collapse;
+            }
+            .Deadline_Todo{
+                border: 1px solid black;
+            }
+            .Deadline_Todo__day{
+                border: 1px solid black;
+            }
+                
             .A_Todo_List {
 
             }
@@ -52,12 +80,20 @@ def set_html_config():
                     </b>
                 </h1>
                 
-                <span>
-                    - Version : V1.0
-                </span>
+                <div>
+                    - Version : V0.1(Proto)
+                </div>
+
+                <div>
+                    - Logseq Directory : ?
+                </div>
             </div>
 
             
+            <div class="Button_Part">
+                
+            </div>
+
             <div>
                 <h3 style="color: blue;" class="TASK_LIST__title">Task Schedule</h3>
             </div>
