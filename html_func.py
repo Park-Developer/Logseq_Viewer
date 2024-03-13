@@ -1,19 +1,25 @@
 import viewer_config
-def create_Html(html_text):
+from datetime import datetime
+
+# #logseq_view_address=logseq_address+"\\logseq_view.html"
+
+def create_Html(doc_addr, html_text):
         
     if "<!DOCTYPE html>" in html_text:
         file_mode='w'
     else:
         file_mode='a'
 
-    log_view_file = open(viewer_config.logseq_view_address, file_mode,encoding='utf8')
+    log_view_file = open(doc_addr, file_mode,encoding='utf8')
     log_view_file.write(html_text)
     log_view_file.close()
 
 
-def set_html_config():
+def set_html_config(doc_addr):
 
-    create_Html("""
+    # (1) CSS Part
+    create_Html(doc_addr,"""
+                
         <!DOCTYPE html>
 
         <html lang="kr">
@@ -70,6 +76,13 @@ def set_html_config():
                 
             }
         </style>
+    """)
+
+    # (2) HTML Body Part
+    now = datetime.now()
+    created_time=now
+
+    create_Html(doc_addr,"""
         <body>
             <div>
                 <h1>
@@ -87,6 +100,10 @@ def set_html_config():
                 <div>
                     - Logseq Directory : ?
                 </div>
+
+                <div>
+                   - Created Time : {0}
+                </div>
             </div>
 
             
@@ -97,5 +114,5 @@ def set_html_config():
             <div>
                 <h3 style="color: blue;" class="TASK_LIST__title">Task Schedule</h3>
             </div>
-    """)
+    """.format(created_time))
 

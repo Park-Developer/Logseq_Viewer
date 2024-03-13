@@ -36,6 +36,7 @@ def get_task_status(task_detail):
 
 # Main Task List
 def get_maintask_list(page_address,page_name):
+    print("page add" ,page_address, page_name)
     log_file=open(page_address+page_name,'r',encoding="utf-8")
     lines=log_file.readlines()
 
@@ -51,8 +52,9 @@ def get_maintask_list(page_address,page_name):
             
             # Sub Task Open 
             try:
-                subtask_file=open(page_address+main_task_name+".md",'r',encoding="utf-8")
+                subtask_file=open(page_address+"\\pages\\"+main_task_name+".md",'r',encoding="utf-8")
             except FileNotFoundError:
+             
                 print("[Err1] file not found!")
             else:
                 sub_line=subtask_file.readlines()
@@ -104,9 +106,9 @@ def get_progress_color(main_task_idx,sub_task_idx)->str:
     return viewer_config.progress_bar_color[main_task_idx % color_num][sub_task_idx % color_bright_num]
 
 
-def get_directory_todo_list(progress_page_list,directory):
+def get_directory_todo_list(logseq_folder_addr,progress_page_list,directory):
         # [1] Searching 'pages' directory
-    pages_addr=viewer_config.logseq_address+"\\"+directory #"\\pages"
+    pages_addr=logseq_folder_addr+"\\"+directory #"\\pages"
     
     all_page_list=os.listdir(pages_addr)
 
@@ -122,7 +124,7 @@ def get_directory_todo_list(progress_page_list,directory):
     # [2] Get Task list
     for td_page in todo_pages_list:
         # [2]-1 Page Open
-        td_page_addr=viewer_config.logseq_address+"\\"+directory+"\\"+td_page
+        td_page_addr=logseq_folder_addr+"\\"+directory+"\\"+td_page
 
         log_file=open(td_page_addr,'r',encoding="utf-8")
         td_lines=log_file.readlines()
@@ -155,13 +157,13 @@ def get_directory_todo_list(progress_page_list,directory):
 
 
 
-def get_todo_list(progress_page_list):
+def get_todo_list(logseq_folder_addr,progress_page_list):
     # [1] Searching 'pages' directory
-    pages_todo_list=get_directory_todo_list(progress_page_list,"pages")
+    pages_todo_list=get_directory_todo_list(logseq_folder_addr,progress_page_list,"pages")
 
 
     # [2] Searching 'journals' directory
-    journals_todo_list=get_directory_todo_list(progress_page_list,"journals")
+    journals_todo_list=get_directory_todo_list(logseq_folder_addr,progress_page_list,"journals")
 
     # [3] Sum of both directory's todo list
     all_todolist=pages_todo_list+journals_todo_list
@@ -180,7 +182,7 @@ def get_todo_list(progress_page_list):
     return deadline_tasklist, normal_tasklist
 
 
-def create_task_Table(main_task_list):
+def create_task_Table(doc_address,main_task_list):
     # Create Table Header
     now=datetime.now() # View from today
 
@@ -328,7 +330,7 @@ def create_task_Table(main_task_list):
 
     # Create Progress Task Table
             
-    html_func.create_Html("""
+    html_func.create_Html(doc_address,"""
     <table class="Schedule_Table">
         <tr class="Schedule_Table__header">
             {0}
@@ -339,7 +341,7 @@ def create_task_Table(main_task_list):
             progress_table_contents_html
             ))
 
-def create_deadline_todo_Table(deadline_tasklist):
+def create_deadline_todo_Table(doc_address,deadline_tasklist):
 
     now=datetime.now() # View from today
 
@@ -449,7 +451,7 @@ def create_deadline_todo_Table(deadline_tasklist):
 
 
     # Create Deadline Todo Table
-    html_func.create_Html("""
+    html_func.create_Html(doc_address,"""
         
         <div>
             <h3 style="color: blue;" class="Todo_List">Todo List With Deadline</h3>
@@ -463,7 +465,7 @@ def create_deadline_todo_Table(deadline_tasklist):
         </table>
     """.format(deadline_todo_header_html,deadline_todo_contents_html))
 
-def create_normal_todo_table(normal_tasklist):
+def create_normal_todo_table(doc_address,normal_tasklist):
     A_Todo_list=[] # priority A todo list
     B_Todo_list=[] # priority B todo list
     C_Todo_list=[] # priority C todo list
@@ -514,7 +516,7 @@ def create_normal_todo_table(normal_tasklist):
 
 
     # Normal Todo Header
-    html_func.create_Html("""
+    html_func.create_Html(doc_address,"""
                         <div>
                             <h3 style="color: blue;" class="Todo_List">Todo List Without Deadline</h3>
                         </div>
@@ -530,7 +532,7 @@ def create_normal_todo_table(normal_tasklist):
 
 
 
-    html_func.create_Html("""
+    html_func.create_Html(doc_address,"""
     </body>
     </html>
     """)

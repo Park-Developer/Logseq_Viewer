@@ -1,10 +1,13 @@
-# Logseq Setting
+# Initial Directory Parameter
+page_name="\\pages\\[진행중인 업무].md"
+logseq_doc_name="logseq_view.html"
+#page_address=logseq_address+"\\pages\\"
+#logseq_view_address=logseq_address+"\\logseq_view.html"
 
-page_name="[진행중인 업무].md"
 
-logseq_address="C:\\Users\\gnvid\\OneDrive\\바탕 화면\\logseq"
-page_address=logseq_address+"\\pages\\"
-logseq_view_address=logseq_address+"\\logseq_view.html"
+# Debugging Setting
+DEBUGGING_ADDRESS="C:\\Users\\gnvid\\OneDrive\\바탕 화면\\logseq" # test address
+
 
 # - System Information
 logView_date_format="%Y-%m-%d"
