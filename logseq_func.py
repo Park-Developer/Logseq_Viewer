@@ -5,7 +5,8 @@ import html_func
 import calaner_func
 # task info get
 def get_task_status(task_detail):
-    def get_task_priority(line):
+
+    def get_task_priority(line)->tuple:
         if '[#A]' in line:
             return ('A',line.index('A'))
         elif '[#B]' in line:
@@ -44,7 +45,8 @@ def get_maintask_list(page_address,page_name):
 
     for line in lines:
         # Main Task
-        if "#" in line:
+        if line.count('#')==1: # Only one # is included in one line
+            
             main_task_name=line[line.index('#')+1:].replace('\n','')
 
 
@@ -55,7 +57,7 @@ def get_maintask_list(page_address,page_name):
                 subtask_file=open(page_address+"\\pages\\"+main_task_name+".md",'r',encoding="utf-8")
             except FileNotFoundError:
              
-                print("[Err1] file not found!")
+                print("[Err1] file not found!",page_address+"\\pages\\"+main_task_name+".md")
             else:
                 sub_line=subtask_file.readlines()
                 
@@ -91,6 +93,32 @@ def get_maintask_list(page_address,page_name):
 
     return main_task_list
 
+def get_maintask_tasknum(main_task_list):
+    # Priority Division
+    a_num=0 # Priority A Task Number
+    b_num=0 # Priority B Task Number
+    c_num=0 # Priority C Task Number
+
+    No_num=0 # Priority X Task Number
+
+
+    for mt in main_task_list: # main task
+        for st in mt["sub_task_list"]: # sub task
+            if st["priority"]=="A":
+                a_num=a_num+1
+            elif st["priority"]=="B":
+                b_num=b_num+1
+            elif st["priority"]=="C":
+                c_num=c_num+1
+            elif st["priority"]=="None":
+                No_num=No_num+1
+            else:
+                print("get_maintask_tasknum(main_task_list): Error! ")
+                return None
+    
+    return (a_num, b_num, c_num, No_num)
+
+    
 
 def get_maintask_name(main_task_list,main_task_idx):
     return main_task_list[main_task_idx]["main_task"]
@@ -190,9 +218,9 @@ def create_task_Table(doc_address,main_task_list):
     for idx in range(viewer_config.logView_Date_Range+2):
 
         if idx==0: # Main Task Name Col
-            table_header_line='<th class="Schedule_Table__tasklist">Main Task</th>'
+            table_header_line='<th class="Schedule_Table__Mainlist" style="width:120px;table-layout:fixed;">Main Task</th>'
         elif idx==1: # Sub Task
-            table_header_line='<th class="Schedule_Table__tasklist">Sub Task</th>'
+            table_header_line='<th class="Schedule_Table__Sublist" style="width:240px;table-layout:fixed;">Sub Task</th>'
         else:      # Day
             idx_date=now+timedelta(days=idx-2) # from today    
             
@@ -238,20 +266,29 @@ def create_task_Table(doc_address,main_task_list):
         
 
     for mt_idx in range(len(main_task_list)):
-        for st_idx in range(len(main_task_list[mt_idx]["sub_task_list"])):
+        subtask_num=len(main_task_list[mt_idx]["sub_task_list"]) # Sub Task Number
+
+        for st_idx in range(subtask_num):
             
             # (1) Get subtask info
             sub_task_info=get_subtask_info(main_task_list,mt_idx,st_idx)
 
     
             cur_row_idx=cur_row_idx+1     # row count +1
+            
+            # Insert Main Task Name at first task line
+            if st_idx==0:
+                main_taskName=get_maintask_name(main_task_list,mt_idx)
+            else:
+                main_taskName=""    
 
             # open <tr> tag
-            table_row_start='<tr class="Schedule_Table_ROW{0} {1} {2} {3} {4}">'.format(cur_row_idx,
-                                                                                        get_maintask_name(main_task_list,mt_idx),
+            table_row_start='<tr class="Schedule_Table_ROW{0} {1} {2} {3} Priority_{4}">\n'.format(cur_row_idx,
+                                                                                        main_taskName,
                                                                                         sub_task_info["sub_task_name"],
                                                                                         sub_task_info["status"],
-                                                                                        sub_task_info["priority"])
+                                                                                        sub_task_info["priority"],
+                                                                                        )
             
             
             progress_table_contents_html=progress_table_contents_html+table_row_start
@@ -264,7 +301,7 @@ def create_task_Table(doc_address,main_task_list):
                 
                         sub_task_num=len(main_task_list[mt_idx]["sub_task_list"])
 
-                        table_col_main='<td class="Schedule_Table_ROW{0}_COL{1} MainID" rowspan="{2}">{3}</td>'.format(cur_row_idx,day_idx+1,sub_task_num,mt_info_display)
+                        table_col_main='<td class="MainID" rowspan="{0}" data-subNum="{1}">{2}</td>\n'.format(sub_task_num,sub_task_num,mt_info_display)
         
                         progress_table_contents_html=progress_table_contents_html+table_col_main
 
@@ -278,10 +315,8 @@ def create_task_Table(doc_address,main_task_list):
                         if sub_task_delay>=0: # delay situation
                             sub_task_name_color=viewer_config.delayed_text_color
 
-                    table_col_sub='<td class="Schedule_Table_ROW{0}_COL{1} SubID" style="color:{2}">{3}</td>'.format(cur_row_idx,
-                                                                                                                    day_idx+1,
-                                                                                                                    sub_task_name_color,
-                                                                                                                    main_task_list[mt_idx]["sub_task_list"][st_idx]["sub_task_name"])
+                    table_col_sub='<td class="SubID" style="color:{0};">{1}</td>\n'.format(sub_task_name_color,
+                                                                                           main_task_list[mt_idx]["sub_task_list"][st_idx]["sub_task_name"])
         
                     progress_table_contents_html=progress_table_contents_html+table_col_sub
 
@@ -315,30 +350,50 @@ def create_task_Table(doc_address,main_task_list):
                                 task_bg_color=get_progress_color(mt_idx,st_idx)
                 
 
-                    table_col_day='<td class="Schedule_Table_ROW{0}_COL{1} {2} " bgcolor="{3}">{4}</td>'.format(cur_row_idx,
-                                                                                                                day_idx+1,
-                                                                                                                cal_day,
-                                                                                                                task_bg_color,
-                                                                                                                delay_inf)
+                    table_col_day='<td class="Table_Day" bgcolor="{0}">{1}</td>\n'.format(task_bg_color,
+                                                                                          delay_inf)
+                    
                     progress_table_contents_html=progress_table_contents_html+table_col_day
             
 
             # close <tr> tag
-            progress_table_contents_html=progress_table_contents_html+'</tr>'
+            progress_table_contents_html=progress_table_contents_html+'</tr>\n'
 
 
+
+    # Get Task Number
+    a_num, b_num, c_num, No_num=get_maintask_tasknum(main_task_list)
+    tsk_num_detail="({0}/{1}/{2}/{3})".format(a_num, b_num, c_num, No_num)
 
     # Create Progress Task Table
-            
     html_func.create_Html(doc_address,"""
-    <table class="Schedule_Table">
+    <div>
+        <h3 style="color: blue;" class="TASK_LIST__title">Task Schedule</h3>
+                                           
+        <span class="Schedule_Table__tskNum">{0}</span>
+        <span class="Schedule_Table__tskNum_detail">{1}</span>
+                            
+        <div class="Button_Part">
+            <button onclick="reset_btn_click()">All</button>
+        
+            <button onclick="Pri_A_btn_click()">A</button>
+            <button onclick="Pri_B_btn_click()">B</button>
+            <button onclick="Pri_C_btn_click()">C</button>
+
+        </div>
+       
+    </div>
+                          
+    <table class="Schedule_Table" style="table-layout: fixed">
         <tr class="Schedule_Table__header">
-            {0}
+            {2}
         </tr>
-            {1}            
+            {3}            
     </table>
-    """.format(progress_table_header_html,
-            progress_table_contents_html
+    """.format(a_num+b_num+c_num+No_num,
+               tsk_num_detail,
+               progress_table_header_html,
+               progress_table_contents_html
             ))
 
 def create_deadline_todo_Table(doc_address,deadline_tasklist):
@@ -375,7 +430,7 @@ def create_deadline_todo_Table(doc_address,deadline_tasklist):
 
     for dead_td_idx in range(len(deadline_tasklist)):
         # (2-1) Create Row
-        dead_td_row_start='<tr class="Dead_Todo_ROW{0} {1} {2} {3}">'.format(dead_td_idx+1,
+        dead_td_row_start='<tr class="Dead_Todo_ROW{0} {1} {2} Priority_{3}">'.format(dead_td_idx+1,
                                                                                 deadline_tasklist[dead_td_idx]["sub_task_name"],
                                                                                 deadline_tasklist[dead_td_idx]["status"],
                                                                                 deadline_tasklist[dead_td_idx]["priority"]
@@ -449,21 +504,51 @@ def create_deadline_todo_Table(doc_address,deadline_tasklist):
         deadline_todo_contents_html=deadline_todo_contents_html+'</tr>'
 
 
+    # Get Table info
+    todo_dead_num=len(deadline_tasklist)
+    td_de_A_num=0;
+    td_de_B_num=0;
+    td_de_C_num=0;
+    td_de_X_num=0;
 
+    for todo_dead in deadline_tasklist:
+        if todo_dead["priority"]=="A":
+            td_de_A_num=td_de_A_num+1
+        elif todo_dead["priority"]=="B":
+            td_de_B_num=td_de_B_num+1
+        elif todo_dead["priority"]=="C":
+            td_de_C_num=td_de_C_num+1
+        else:
+            td_de_X_num=td_de_X_num+1
+
+    dead_tsk_detail="({0}/{1}/{2}/{3})".format(td_de_A_num,td_de_B_num,td_de_C_num,td_de_X_num)
+    
     # Create Deadline Todo Table
     html_func.create_Html(doc_address,"""
         
         <div>
             <h3 style="color: blue;" class="Todo_List">Todo List With Deadline</h3>
+                          
+            <span class="Todo_Table__tskNum">{0}</span>
+            <span class="Todo_Table__tskNum_detail">{1}</span>
+                            
+            <div class="Button_Part">
+                <button onclick="todo_reset_btn_click()">All</button>
+            
+                <button onclick="todo_Pri_A_btn_click()">A</button>
+                <button onclick="todo_Pri_B_btn_click()">B</button>
+                <button onclick="todo_Pri_C_btn_click()">C</button>
+
+            </div>
         </div>
 
         <table class="Deadline_Todo_Table">
             <tr class="Deadline_Todo_Header">               
-                {0}
+                {2}
             </tr>
-                {1}
+                {3}
         </table>
-    """.format(deadline_todo_header_html,deadline_todo_contents_html))
+    """.format(todo_dead_num, dead_tsk_detail,deadline_todo_header_html,deadline_todo_contents_html))
 
 def create_normal_todo_table(doc_address,normal_tasklist):
     A_Todo_list=[] # priority A todo list
@@ -531,8 +616,3 @@ def create_normal_todo_table(doc_address,normal_tasklist):
                         """.format(A_div,B_div,C_div,X_div))
 
 
-
-    html_func.create_Html(doc_address,"""
-    </body>
-    </html>
-    """)

@@ -41,3 +41,9 @@ def create_log_Doc(logseq_address, debug_flag):
     # [3]-2 Normal & Priority Table
     logseq_func.create_normal_todo_table(doc_address,normal_tasklist)
 
+    
+    # Insert Javscript Code
+    html_func.set_js(doc_address)
+
+    # Close HTML
+    html_func.close_html_code(doc_address)
