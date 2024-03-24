@@ -218,9 +218,9 @@ def create_task_Table(doc_address,main_task_list):
     for idx in range(viewer_config.logView_Date_Range+2):
 
         if idx==0: # Main Task Name Col
-            table_header_line='<th class="Schedule_Table__Mainlist" style="width:120px;table-layout:fixed;">Main Task</th>'
+            table_header_line='<th class="Schedule_Table__Mainlist Table_Header__Main">Main Task</th>'
         elif idx==1: # Sub Task
-            table_header_line='<th class="Schedule_Table__Sublist" style="width:240px;table-layout:fixed;">Sub Task</th>'
+            table_header_line='<th class="Schedule_Table__Sublist Table_Header__Sub">Sub Task</th>'
         else:      # Day
             idx_date=now+timedelta(days=idx-2) # from today    
             
@@ -231,7 +231,7 @@ def create_task_Table(doc_address,main_task_list):
                 txt_color=viewer_config.basic_text_color
             
 
-            table_header_line='<th class="Schedule_Table__day Schedule_Table__day{0}" style="color:{1}">{2}</th>'.format(idx,txt_color,str(idx_date.month)+"/"+str(idx_date.day)+"\n"+calaner_func.convert_weekday(idx_date.weekday()))
+            table_header_line='<th class=" Table_Header__Day" style="color:{1}">{2}</th>'.format(idx,txt_color,str(idx_date.month)+"/"+str(idx_date.day)+"\n"+calaner_func.convert_weekday(idx_date.weekday()))
 
         progress_table_header_html=progress_table_header_html+table_header_line+"\n"
 
@@ -368,18 +368,20 @@ def create_task_Table(doc_address,main_task_list):
     # Create Progress Task Table
     html_func.create_Html(doc_address,"""
     <div>
-        <h3 style="color: blue;" class="TASK_LIST__title">Task Schedule</h3>
+        <h2 style="color: blue;" class="Contents_Header TASK_LIST__title">Task Schedule</h2>
                                            
-        <span class="Schedule_Table__tskNum">{0}</span>
-        <span class="Schedule_Table__tskNum_detail">{1}</span>
-                            
+
         <div class="Button_Part">
             <button onclick="reset_btn_click()">All</button>
         
             <button onclick="Pri_A_btn_click()">A</button>
             <button onclick="Pri_B_btn_click()">B</button>
             <button onclick="Pri_C_btn_click()">C</button>
-
+            <button onclick="Pri_X_btn_click()">X</button>
+                               
+            <span class="Schedule_Table__tskNum Button_SubInfo__font">{0}</span>
+            <span class="Schedule_Table__tskNum_detail Button_SubInfo__font">{1}</span>
+                            
         </div>
        
     </div>
@@ -408,7 +410,7 @@ def create_deadline_todo_Table(doc_address,deadline_tasklist):
     for idx in range(viewer_config.logView_Date_Range+1):
 
         if idx==0: # Main Task Name Col
-            deadline_todo_header_html=deadline_todo_header_html+'<th class="Deadline_Todo">Task</th>'
+            deadline_todo_header_html=deadline_todo_header_html+'<th class="Deadline_Todo__Task">Task List</th>'
         else:      # Day
             idx_date=now+timedelta(days=idx-1) # from today    
 
@@ -419,8 +421,10 @@ def create_deadline_todo_Table(doc_address,deadline_tasklist):
             else:
                 txt_color=viewer_config.basic_text_color
 
+            cal_day_info=str(idx_date.month)+"/"+str(idx_date.day)+"\n"+calaner_func.convert_weekday(idx_date.weekday())
 
-            deadline_todo_header_html=deadline_todo_header_html+'<th class="Deadline_Todo__day Deadline_Todo__day{0}" style="color:{1}">{2}</th>'.format(idx,txt_color,str(idx_date.month)+"/"+str(idx_date.day)+"\n"+calaner_func.convert_weekday(idx_date.weekday()))
+            deadline_todo_header_html=deadline_todo_header_html+'<th class="Deadline_Todo__Day" style="color:{0}">{1}</th>'.format(txt_color,cal_day_info)
+                                                                                                                                   
 
 
     # [2] Create Deadline Table Row and Col
@@ -446,6 +450,7 @@ def create_deadline_todo_Table(doc_address,deadline_tasklist):
 
         # (2-2) Create Col
         for dead_day_idx in range(viewer_config.logView_Date_Range+1):
+            # Task Name 
             if dead_day_idx==0:
 
                 # text color setting
@@ -461,7 +466,8 @@ def create_deadline_todo_Table(doc_address,deadline_tasklist):
                                                                                                     deadline_tasklist[dead_td_idx]["sub_task_name"])
 
                 deadline_todo_contents_html=deadline_todo_contents_html+td_dead_col
-
+            
+            # Task Calander Info
             else:
                 
                 cal_day=datetime.today()+timedelta(days=dead_day_idx-1)
@@ -492,11 +498,8 @@ def create_deadline_todo_Table(doc_address,deadline_tasklist):
                 else:
                     today_info_txt=""
                     
-                td_dead_col='<td class="Dead_Todo_ROW{0}_COL{1} {2}" bgcolor="{3}">{4}</td>'.format(dead_td_idx+1,
-                                                                                                    dead_day_idx+1,
-                                                                                                    datetime.today()+timedelta(days=dead_day_idx-1),
-                                                                                                    task_bg_color,
-                                                                                                    today_info_txt)
+                td_dead_col='<td class="Table_Day" bgcolor="{0}">{1}</td>'.format(task_bg_color, today_info_txt)
+                                                                                                   
 
                 deadline_todo_contents_html=deadline_todo_contents_html+td_dead_col
 
@@ -527,19 +530,20 @@ def create_deadline_todo_Table(doc_address,deadline_tasklist):
     html_func.create_Html(doc_address,"""
         
         <div>
-            <h3 style="color: blue;" class="Todo_List">Todo List With Deadline</h3>
-                          
-            <span class="Todo_Table__tskNum">{0}</span>
-            <span class="Todo_Table__tskNum_detail">{1}</span>
-                            
+            <h2 style="color: blue;" class="Contents_Header Todo_List">Todo List With Deadline</h2>
+                                 
             <div class="Button_Part">
                 <button onclick="todo_reset_btn_click()">All</button>
             
                 <button onclick="todo_Pri_A_btn_click()">A</button>
                 <button onclick="todo_Pri_B_btn_click()">B</button>
                 <button onclick="todo_Pri_C_btn_click()">C</button>
-
+                <button onclick="todo_Pri_X_btn_click()">X</button>
+                          
+                <span class="Todo_Table__tskNum Button_SubInfo__font">{0}</span>
+                <span class="Todo_Table__tskNum_detail Button_SubInfo__font">{1}</span>
             </div>
+                          
         </div>
 
         <table class="Deadline_Todo_Table">
@@ -603,7 +607,7 @@ def create_normal_todo_table(doc_address,normal_tasklist):
     # Normal Todo Header
     html_func.create_Html(doc_address,"""
                         <div>
-                            <h3 style="color: blue;" class="Todo_List">Todo List Without Deadline</h3>
+                            <h2 style="color: blue;" class="Contents_Header Todo_List">Todo List Without Deadline</h2>
                         </div>
                         
                         <div style="display: flex;">

@@ -21,7 +21,6 @@ def set_html_config(doc_addr):
     create_Html(doc_addr,"""
                 
         <!DOCTYPE html>
-
         <html lang="kr">
 
         <head>
@@ -32,32 +31,80 @@ def set_html_config(doc_addr):
         </head>
 
         <style>
+            .Program_Info__font{
+                font-size:50%;
+            }
+            
+            .Contents_Header{
+                margin-top:5%;
+                margin-bottom:0;
+            }
+            .Button_SubInfo__font{
+                font-size:70%;
+            }
+                
             .Schedule_Table {
                 border-collapse: collapse;
                 table-layout:fixed;
+
+                width:100%;
             }
-            .Schedule_Table__tasklist {
+                
+
+            .Table_Header__Main{
                 border: 1px solid black;
-           
+                width: 10%;
+                
+                white-space: nowrap; /* Prevent text from wrapping */
+                
             }
-            .Schedule_Table__day {
+            .Table_Header__Sub{
+                border: 1px solid black;
+                width: 10%;
+
+                white-space: nowrap; /* Prevent text from wrapping */
+                overflow: hidden; /* Hide overflow content */
+                text-overflow: ellipsis; /* Show ellipsis (...) for overflow text */
+               
+            }
+            .Table_Header__Day{
+                font-size:70%;
                 border: 1px solid black;
             }
+                
+            
             .MainID {
+                width: 10%;
                 border: 1px solid black;
             }
+                
             .SubID {
+                width: 10%;
                 border: 1px dotted gray;
-              
+
+                white-space: nowrap; /* Prevent text from wrapping */
+                overflow: hidden; /* Hide overflow content */
+                text-overflow: ellipsis; /* Show ellipsis (...) for overflow text */
+            }
+            
+            .Table_Day{
+                font-size:70%;
+                font-style: italic;
             }
      
             .Deadline_Todo_Table{
                 border-collapse: collapse;
-            }
-            .Deadline_Todo{
+
+                table-layout:fixed;
+                width:100%;
+            }   
+                
+            .Deadline_Todo__Task{
+                width: 20%;
                 border: 1px solid black;
             }
-            .Deadline_Todo__day{
+            .Deadline_Todo__Day{
+                font-size:70%;
                 border: 1px solid black;
             }
                 
@@ -93,15 +140,15 @@ def set_html_config(doc_addr):
                     </b>
                 </h1>
                 
-                <div>
+                <div class="Program_Info__font">
                     - Version : V0.1(Proto)
                 </div>
 
-                <div>
+                <div class="Program_Info__font">
                     - Logseq Directory : {0}
                 </div>
 
-                <div>
+                <div class="Program_Info__font">
                    - Created Time : {1}
                 </div>
             </div>
@@ -114,13 +161,18 @@ def set_html_config(doc_addr):
 def set_js(doc_addr):
     # Javascript Code for Button
     initial_setting="""
+
+    
+    
+
+    """
+
+
+    inprogress_task_func="""
     // Variable Setting
     schedule_table=document.querySelector(".Schedule_Table");
     schedule_table__row_num=schedule_table.rows.length;
     schedule_table__cell_num=schedule_table.rows[0].cells.length;
-    
-    dead_table=document.querySelector(".Deadline_Todo_Table");
-
 
     // Function Definition
     function Priority_btn_click(selected_Priority){
@@ -158,8 +210,12 @@ def set_js(doc_addr):
                 if(name_reset_flag==true && prior_list.length!=0){
                     new_cell_idx=prior_list[0];
                 
+                    // Add Main Taskname
                     var new_cell = schedule_table.rows[new_cell_idx].insertCell(0);
                     new_cell.innerHTML=main_tsk_name;
+
+                    // Add temporary Class
+                    schedule_table.rows[new_cell_idx].classList.add("Temp_Main");
                 }
                     
                 // Resize Row Span
@@ -171,66 +227,64 @@ def set_js(doc_addr):
         }
 
     }
-                
 
 
-    """
-
-    pri_A_btn_click="""
-        function Pri_A_btn_click(){
+       function Pri_A_btn_click(){
             reset_btn_click()
             Priority_btn_click("Priority_A")
         }
-    """
 
-    pri_B_btn_click="""
         function Pri_B_btn_click(){
             reset_btn_click()
             Priority_btn_click("Priority_B")
         }
-    """
 
-    pri_C_btn_click="""
         function Pri_C_btn_click(){
             reset_btn_click()
             Priority_btn_click("Priority_C")
         }
-    """
-    reset_btn_click="""
-    function reset_btn_click() {
 
-        for (var i = 0; i < schedule_table__row_num; i++) {
-
-            if (schedule_table.rows[i].style.display == 'none') {
-                schedule_table.rows[i].style.display = '';
-            }else{
-                //schedule_table__cell_num
-           
-            }
-              
-            // Task Start
-            if(schedule_table.rows[i].cells[0].classList.contains('MainID')){
-            
-                schedule_table.rows[i].cells[0].rowSpan=parseInt(schedule_table.rows[i].cells[0].dataset.subnum);
-            }else{
-
-                if(schedule_table.rows[i].cells.length>schedule_table__cell_num){
-                    schedule_table.rows[i].deleteCell(0);
-                }
-
-                schedule_table.rows[i].cells[0].rowSpan=1;
-            }
-                
-       
-
+        function Pri_X_btn_click(){
+            reset_btn_click()
+            Priority_btn_click("Priority_None")
         }
 
-    
-    }
+        
+        function reset_btn_click() {
+
+            for (var i = 0; i < schedule_table__row_num; i++) {
+
+                if (schedule_table.rows[i].style.display == 'none') {
+                    schedule_table.rows[i].style.display = '';
+                }
+                
+                // Identify Temp Main Task
+                if(schedule_table.rows[i].classList.contains('Temp_Main')){
+                    schedule_table.rows[i].deleteCell(0);
+                    schedule_table.rows[i].classList.remove('Temp_Main');
+
+                }
+
+
+                // Task Start
+                if(schedule_table.rows[i].cells[0].classList.contains('MainID')){
+                
+                    schedule_table.rows[i].cells[0].rowSpan=parseInt(schedule_table.rows[i].cells[0].dataset.subnum);
+                }else{
+                    schedule_table.rows[i].cells[0].rowSpan=1;
+                }
+                
+            }
+
+      
+        }
     """
 
+
     todo_dead_func="""
-    
+        dead_table=document.querySelector(".Deadline_Todo_Table");
+
+        
         function dead_pri_btn_click(selected_priority){
             for(var i=1; i<dead_table.rows.length;i++){
                 if(dead_table.rows[i].classList.contains(selected_priority)==false){
@@ -266,6 +320,11 @@ def set_js(doc_addr):
             dead_pri_btn_click("Priority_C");
         }
 
+        function todo_Pri_X_btn_click(){
+            dead_pri_reset();
+            dead_pri_btn_click("Priority_None");
+        }
+
 """
 
     create_Html(doc_addr, """
@@ -276,16 +335,11 @@ def set_js(doc_addr):
     {0}
     {1}
     {2}
-    {3}
-    {4}            
-    {5}        
+       
     </script>
 
     """.format(initial_setting,
-               reset_btn_click,
-                pri_A_btn_click,
-                pri_B_btn_click,
-                pri_C_btn_click,
+          inprogress_task_func,
                 todo_dead_func)
                )
 
