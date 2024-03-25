@@ -18,25 +18,26 @@ Logseq Task Management Program to visualize task lists and their respective stat
 
 1. The location of the logseq.json must be in the Logseq folder.
 
-```bash
+``` bash
 dir
 ```
 
-'''Text
+[Output]
+``` Text
 pages
 journals
 assets
 logseq.json
 logseq_view.html
-'''
+```
 
 2. The logseq.json file should contain the necessary information, 
-'''json
+``` json
 {
 "Logseq_Address" : "C:\\ ... \\logseq",
 "Mode":"RUN"
 }
-'''
+```
 
 - Logseq_Address : Directory of Logseq folder
 - Mode "RUN" : Create logseq_view.html automatically 
