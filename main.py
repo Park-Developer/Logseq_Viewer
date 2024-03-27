@@ -2,7 +2,16 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QLabel
 import os
+import json
 import make_doc
+import viewer_config
+
+''' [DEVELOPER SETTING] '''
+
+DEBUG_MODE=False # True : Debugging Mode / False : Release Mode
+
+
+''' [PyQT SETTING] '''
 
 class MyApp(QWidget):
 
@@ -47,15 +56,33 @@ class MyApp(QWidget):
         self.resize(400, 200)
         self.show()
 
+
     def load_clicked(self):
         self.state__val.setText("Upload!")
         
-        # Initial Setting
-        logseq_addr=os.getcwd()
-        debug_flag=True
 
-        # Create Logseq Doc!
-        make_doc.create_log_Doc(logseq_addr,debug_flag) 
+        # [Normal Mode]
+        if DEBUG_MODE==False:
+            try:
+                with open(os.getcwd()+"\\logseq.json",encoding="utf-8") as f:
+                    logseq_data = json.load(f)
+            except FileNotFoundError:
+                print("logseq.json Not found!")
+                self.state__val.setText("logseq.json Not found!")
+
+            else:
+                if logseq_data["Logseq_Address"]=="":
+                    self.state__val.setText("logseq.json setting is required!")
+                else:
+                    logseq_addr=logseq_data["Logseq_Address"]
+                
+                    # Create Logseq Doc!
+                    make_doc.create_log_Doc(logseq_addr,DEBUG_MODE) 
+
+        # [Debugging Mode]
+        else:
+            logseq_addr=viewer_config.DEBUGGING_ADDRESS
+            make_doc.create_log_Doc(logseq_addr,DEBUG_MODE) 
 
 
 if __name__ == '__main__':

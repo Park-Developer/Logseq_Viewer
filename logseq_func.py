@@ -231,7 +231,7 @@ def create_task_Table(doc_address,main_task_list):
                 txt_color=viewer_config.basic_text_color
             
 
-            table_header_line='<th class=" Table_Header__Day" style="color:{1}">{2}</th>'.format(idx,txt_color,str(idx_date.month)+"/"+str(idx_date.day)+"\n"+calaner_func.convert_weekday(idx_date.weekday()))
+            table_header_line='<th class=" Table_Header__Day" style="color:{1}">{2}</th>'.format(idx,txt_color,str(idx_date.month)+"/"+str(idx_date.day)+"<br>"+calaner_func.convert_weekday(idx_date.weekday()))
 
         progress_table_header_html=progress_table_header_html+table_header_line+"\n"
 
@@ -378,7 +378,9 @@ def create_task_Table(doc_address,main_task_list):
             <button onclick="Pri_B_btn_click()">B</button>
             <button onclick="Pri_C_btn_click()">C</button>
             <button onclick="Pri_X_btn_click()">X</button>
-                               
+                          
+            <button onclick="Period_btn_click()">Period</button>          
+            
             <span class="Schedule_Table__tskNum Button_SubInfo__font">{0}</span>
             <span class="Schedule_Table__tskNum_detail Button_SubInfo__font">{1}</span>
                             
@@ -386,7 +388,7 @@ def create_task_Table(doc_address,main_task_list):
        
     </div>
                           
-    <table class="Schedule_Table" style="table-layout: fixed">
+    <table class="Schedule_Table">
         <tr class="Schedule_Table__header">
             {2}
         </tr>
@@ -421,7 +423,7 @@ def create_deadline_todo_Table(doc_address,deadline_tasklist):
             else:
                 txt_color=viewer_config.basic_text_color
 
-            cal_day_info=str(idx_date.month)+"/"+str(idx_date.day)+"\n"+calaner_func.convert_weekday(idx_date.weekday())
+            cal_day_info=str(idx_date.month)+"/"+str(idx_date.day)+"<br>"+calaner_func.convert_weekday(idx_date.weekday())
 
             deadline_todo_header_html=deadline_todo_header_html+'<th class="Deadline_Todo__Day" style="color:{0}">{1}</th>'.format(txt_color,cal_day_info)
                                                                                                                                    
@@ -539,7 +541,9 @@ def create_deadline_todo_Table(doc_address,deadline_tasklist):
                 <button onclick="todo_Pri_B_btn_click()">B</button>
                 <button onclick="todo_Pri_C_btn_click()">C</button>
                 <button onclick="todo_Pri_X_btn_click()">X</button>
-                          
+                
+                <button onclick="todo_Period_btn_click()">Period</button>
+
                 <span class="Todo_Table__tskNum Button_SubInfo__font">{0}</span>
                 <span class="Todo_Table__tskNum_detail Button_SubInfo__font">{1}</span>
             </div>
@@ -582,20 +586,29 @@ def create_normal_todo_table(doc_address,normal_tasklist):
     """.format(viewer_config.priority_todo_align_CSS)
 
     for nor_todo in normal_tasklist:
+        checkbox_html_code="""
+                                <div class="todo_checkbox" style="display: flex;">
+                                    <input type="checkbox" name="{0}", id="{0}"/> 
+                                    <label for="{0}">"{0}"</label>
+                                </div>
+            """.format(nor_todo["sub_task_name"])
+
+
         if nor_todo["priority"]=="A":
             A_Todo_list.append(nor_todo)
-            A_div=A_div+"\n <span> - "+nor_todo["sub_task_name"] +"</span>"
+            A_div=A_div+checkbox_html_code
+
 
         elif nor_todo["priority"]=="B":
             B_Todo_list.append(nor_todo)
-            B_div=B_div+"\n <span> - "+nor_todo["sub_task_name"] +"</span>"
+            B_div=B_div+checkbox_html_code
 
         elif nor_todo["priority"]=="C":
             C_Todo_list.append(nor_todo)
-            C_div=C_div+"\n <span> - "+nor_todo["sub_task_name"] +"</span>"
+            C_div=C_div+checkbox_html_code
         else:
             X_Todo_list.append(nor_todo)
-            X_div=X_div+"\n <span> - "+nor_todo["sub_task_name"] +"</span>"
+            X_div=X_div+checkbox_html_code
 
 
     A_div=A_div+"</div>"

@@ -157,24 +157,29 @@ def set_html_config(doc_addr):
     """.format(doc_addr, created_time))
 
 
-
+# Javascript Code
 def set_js(doc_addr):
-    # Javascript Code for Button
-    initial_setting="""
 
+    initial_setting="""
+    /* Developer Setting */
+
+    PERIOD_MODIFICATION=10;
     
     
 
     """
 
-
+    # Schedule Table Javascript
     inprogress_task_func="""
+    /* [Schedule Table Function]  */
+
     // Variable Setting
     schedule_table=document.querySelector(".Schedule_Table");
     schedule_table__row_num=schedule_table.rows.length;
     schedule_table__cell_num=schedule_table.rows[0].cells.length;
 
     // Function Definition
+
     function Priority_btn_click(selected_Priority){
         var main_tsk_name;
         var sub_tsk_num;
@@ -229,61 +234,87 @@ def set_js(doc_addr):
     }
 
 
-       function Pri_A_btn_click(){
-            reset_btn_click()
-            Priority_btn_click("Priority_A")
-        }
+    // A Priority Filtering
+    function Pri_A_btn_click(){
+        reset_btn_click()
+        Priority_btn_click("Priority_A")
+    }
 
-        function Pri_B_btn_click(){
-            reset_btn_click()
-            Priority_btn_click("Priority_B")
-        }
+    // B Priority Filtering
+    function Pri_B_btn_click(){
+        reset_btn_click()
+        Priority_btn_click("Priority_B")
+    }
 
-        function Pri_C_btn_click(){
-            reset_btn_click()
-            Priority_btn_click("Priority_C")
-        }
+    // C Priority Filtering
+    function Pri_C_btn_click(){
+        reset_btn_click()
+        Priority_btn_click("Priority_C")
+    }
 
-        function Pri_X_btn_click(){
-            reset_btn_click()
-            Priority_btn_click("Priority_None")
-        }
+    // None Priority Filtering
+    function Pri_X_btn_click(){
+        reset_btn_click()
+        Priority_btn_click("Priority_None")
+    }
 
-        
-        function reset_btn_click() {
+    // Reset Filtering    
+    function reset_btn_click() {
 
-            for (var i = 0; i < schedule_table__row_num; i++) {
-
-                if (schedule_table.rows[i].style.display == 'none') {
-                    schedule_table.rows[i].style.display = '';
-                }
+        for (var i = 0; i < schedule_table__row_num; i++) {
+            if (schedule_table.rows[i].style.display == 'none') {
+                schedule_table.rows[i].style.display = '';
+            }
                 
-                // Identify Temp Main Task
-                if(schedule_table.rows[i].classList.contains('Temp_Main')){
-                    schedule_table.rows[i].deleteCell(0);
-                    schedule_table.rows[i].classList.remove('Temp_Main');
+            // Identify Temp Main Task
+            if(schedule_table.rows[i].classList.contains('Temp_Main')){
+                schedule_table.rows[i].deleteCell(0);
+                schedule_table.rows[i].classList.remove('Temp_Main');
+            }
 
-                }
 
-
-                // Task Start
-                if(schedule_table.rows[i].cells[0].classList.contains('MainID')){
+            // Task Start
+            if(schedule_table.rows[i].cells[0].classList.contains('MainID')){
                 
-                    schedule_table.rows[i].cells[0].rowSpan=parseInt(schedule_table.rows[i].cells[0].dataset.subnum);
-                }else{
-                    schedule_table.rows[i].cells[0].rowSpan=1;
+                schedule_table.rows[i].cells[0].rowSpan=parseInt(schedule_table.rows[i].cells[0].dataset.subnum);
+            }else{
+                schedule_table.rows[i].cells[0].rowSpan=1;
+            }
+                
+        }  
+    }
+
+    // Period Button
+    function Period_btn_click(){
+        var col_num;
+        var period_cut;
+
+        for (var i = 0; i < schedule_table__row_num; i++) {
+
+            if(schedule_table__cell_num==schedule_table.rows[i].cells.length){
+                col_num=schedule_table__cell_num;
+                period_cut=PERIOD_MODIFICATION+2;
+            }else{
+                col_num=schedule_table.rows[i].cells.length;
+                period_cut=PERIOD_MODIFICATION+1;
+            }
+
+
+            for(var j=0;j<col_num;j++){
+                if(j>=period_cut){
+                    console.log(i, col_num=schedule_table.rows[i].cells.length)
+                    schedule_table.rows[i].cells[j].style.display= 'none';
                 }
                 
             }
-
-      
         }
+    }
     """
 
-
+    # Deadline Todolist Javascript
     todo_dead_func="""
         dead_table=document.querySelector(".Deadline_Todo_Table");
-
+        dead_table_cell_num=dead_table.rows[0].cells.length;
         
         function dead_pri_btn_click(selected_priority){
             for(var i=1; i<dead_table.rows.length;i++){
@@ -292,6 +323,7 @@ def set_js(doc_addr):
                 }
             }
         }   
+        
         function dead_pri_reset(){
             for(var i=0; i<dead_table.rows.length;i++){
  
@@ -305,33 +337,47 @@ def set_js(doc_addr):
             dead_pri_reset();
         }
 
+        // A Priority Filtering
         function todo_Pri_A_btn_click(){
             dead_pri_reset();
             dead_pri_btn_click("Priority_A");
         }
 
+        // B Priority Filtering
         function todo_Pri_B_btn_click(){
             dead_pri_reset();
             dead_pri_btn_click("Priority_B");
         }
 
+        // C Priority Filtering
         function todo_Pri_C_btn_click(){
             dead_pri_reset();
             dead_pri_btn_click("Priority_C");
         }
 
+        // X Priority Filtering
         function todo_Pri_X_btn_click(){
             dead_pri_reset();
             dead_pri_btn_click("Priority_None");
         }
 
+        
+        // Period Modification
+        function todo_Period_btn_click(){
+            for (var i = 0; i < dead_table.rows.length; i++) {
+                for(var j=0;j<dead_table_cell_num;j++){
+                    if(j>=PERIOD_MODIFICATION+1){
+                        dead_table.rows[i].cells[j].style.display= 'none';
+                    }
+                    
+                }
+            }
+        }
 """
 
     create_Html(doc_addr, """
     <script>
     
-
-    // Function 
     {0}
     {1}
     {2}
