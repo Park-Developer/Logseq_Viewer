@@ -1,6 +1,6 @@
 # Logseq_Viewer
- - version : V0
- - created by Daniel Park
+ - Version : V0
+ - Created by Daniel Park
 
 
 ### *Introduction*
@@ -17,6 +17,7 @@ Logseq Task Management Program to visualize task lists and their respective stat
 
 1. You must create logseq.json in the Logseq folder.
 ![alt text](image.png)
+
 
 2. Input your Logseq folder address in the "Logseq_Address" in logseq.json
 
