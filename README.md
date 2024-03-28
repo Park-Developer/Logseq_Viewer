@@ -1,5 +1,6 @@
 # Logseq_Viewer
-
+ - version : V0
+ - created by Daniel Park
 
 
 ### *Introduction*
@@ -7,35 +8,32 @@
 I think Logseq is awesome free tool to manage todo lists or daily notes. However, It is hard to manage all tasks effectively if I only use Logseq. So, I decided to make a viewer program to visually manage all tasks written in Logseq. 
 
 
-
 ### *Concept*
 
 Logseq Task Management Program to visualize task lists and their respective statuses
 
 
-
 ### *How to use?*
 
-1. The location of the logseq.json must be in the Logseq folder.
+1. You must create logseq.json in the Logseq folder.
+![alt text](image.png)
 
-``` bash
-dir
-```
+2. Input your Logseq folder address in the "Logseq_Address" in logseq.json
 
-[Output]
-``` Text
-pages
-journals
-assets
-logseq.json
-logseq_view.html
-```
-
-2. The logseq.json file should contain the necessary information, 
-``` json
-{
-"Logseq_Address" : "C:\\ ... \\logseq",
-"Mode":"RUN"
+```json
+{   
+    "INFO" : {
+        "Description":"Logseq setting file for execution",
+        "Version": "Logseq Viewer V0",
+        "Notice":"You must input Logseq folder directory. Otherwise the viewer file will not be created"
+    },
+    
+    "SETTING":{
+        "Logseq_Address" : "C:\\Users\\gnvid\\OneDrive\\바탕 화면\\logseq",
+        "Mode":"RUN",
+        "Style":"TBD",
+        "Calander Range":"TBD"
+    }
 }
 ```
 
@@ -50,6 +48,8 @@ logseq_view.html
 DEBUG_MODE=True # True : Debugging Mode
 ```
 
-4. You can use filtering with priority
-
+### *Function*
+ - Visualization
+ - Priority Filterin 
+ - Calander Modification
 

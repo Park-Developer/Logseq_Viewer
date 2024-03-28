@@ -8,7 +8,7 @@ import viewer_config
 
 ''' [DEVELOPER SETTING] '''
 
-DEBUG_MODE=False # True : Debugging Mode / False : Release Mode
+DEBUG_MODE=True # True : Debugging Mode / False : Release Mode
 
 
 ''' [PyQT SETTING] '''
@@ -71,10 +71,10 @@ class MyApp(QWidget):
                 self.state__val.setText("logseq.json Not found!")
 
             else:
-                if logseq_data["Logseq_Address"]=="":
+                if logseq_data["SETTING"]["Logseq_Address"]=="":
                     self.state__val.setText("logseq.json setting is required!")
                 else:
-                    logseq_addr=logseq_data["Logseq_Address"]
+                    logseq_addr=logseq_data["SETTING"]["Logseq_Address"]
                 
                     # Create Logseq Doc!
                     make_doc.create_log_Doc(logseq_addr,DEBUG_MODE) 

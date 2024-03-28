@@ -17,7 +17,7 @@ def get_task_status(task_detail):
             return ("None",-1)
 
     for status in ["TODO","DOING","NOW","DONE","WAITING"]:
-        if status in task_detail:
+        if status in task_detail and "query" not in task_detail:
             if get_task_priority(task_detail):
                 priority, prior_idx=get_task_priority(task_detail)
             

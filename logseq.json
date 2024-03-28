@@ -1,3 +1,14 @@
-{"Logseq_Address" : "C:\\Users\\gnvid\\OneDrive\\바탕 화면\\logseq",
-"Mode":"RUN"
+{   
+    "INFO" : {
+        "Description":"Logseq setting file for execution",
+        "Version": "Logseq Viewer V0",
+        "Notice":"You must input Logseq folder directory. Otherwise the viewer file will not be created"
+    },
+    
+    "SETTING":{
+        "Logseq_Address" : "C:\\Users\\gnvid\\OneDrive\\바탕 화면\\logseq",
+        "Mode":"RUN",
+        "Style":"TBD",
+        "Calander Range":"TBD"
+    }
 }
