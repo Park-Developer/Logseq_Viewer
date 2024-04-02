@@ -230,8 +230,9 @@ def create_task_Table(doc_address,main_task_list):
             else:
                 txt_color=viewer_config.basic_text_color
             
+            day_info=str(idx_date.month)+"/"+str(idx_date.day)+"<br>"+calaner_func.convert_weekday(idx_date.weekday())
 
-            table_header_line='<th class=" Table_Header__Day" style="color:{1}">{2}</th>'.format(idx,txt_color,str(idx_date.month)+"/"+str(idx_date.day)+"<br>"+calaner_func.convert_weekday(idx_date.weekday()))
+            table_header_line='<th class=" Table_Header__Day" style="color:{0}">{1}</th>'.format(txt_color,day_info)
 
         progress_table_header_html=progress_table_header_html+table_header_line+"\n"
 

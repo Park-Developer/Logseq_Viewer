@@ -27,7 +27,9 @@ def set_html_config(doc_addr):
             <meta charset="UTF-8">
             <meta http-equiv="X-UA-Compatible" content="IE=edge">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Log View</title>
+
+                
+            <title>Logseq Viewer</title>
         </head>
 
         <style>
@@ -302,7 +304,7 @@ def set_js(doc_addr):
 
             for(var j=0;j<col_num;j++){
                 if(j>=period_cut){
-                    console.log(i, col_num=schedule_table.rows[i].cells.length)
+             
                     schedule_table.rows[i].cells[j].style.display= 'none';
                 }
                 
@@ -316,6 +318,7 @@ def set_js(doc_addr):
         dead_table=document.querySelector(".Deadline_Todo_Table");
         dead_table_cell_num=dead_table.rows[0].cells.length;
         
+
         function dead_pri_btn_click(selected_priority){
             for(var i=1; i<dead_table.rows.length;i++){
                 if(dead_table.rows[i].classList.contains(selected_priority)==false){
@@ -324,11 +327,10 @@ def set_js(doc_addr):
             }
         }   
         
+
         function dead_pri_reset(){
             for(var i=0; i<dead_table.rows.length;i++){
- 
-                    dead_table.rows[i].style.display= '';
-           
+                dead_table.rows[i].style.display= '';
             }
         }  
 

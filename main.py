@@ -8,7 +8,7 @@ import viewer_config
 
 ''' [DEVELOPER SETTING] '''
 
-DEBUG_MODE=True # True : Debugging Mode / False : Release Mode
+DEBUG_MODE=False # True : Debugging Mode / False : Release Mode
 
 
 ''' [PyQT SETTING] '''
