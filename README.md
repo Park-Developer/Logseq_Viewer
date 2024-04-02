@@ -1,6 +1,10 @@
 # Logseq_Viewer
  - Version : V0
  - Created by Daniel Park
+<p align="left">
+ <img width="80" height="60" src="icon.png">
+
+</p>
 <br>
 
 ### *Introduction*
