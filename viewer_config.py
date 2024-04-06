@@ -18,8 +18,9 @@ logView_Date_Range=30
 
 # Background Color
 basic_bar_color="#FFFFFF" # white
+color_order_rise=False
 
-
+# Task Ghant Chart Color
 progress_bar_color=[
     ["#D6E4FF","#ADC8FF","#84A9FF","#6690FF","#3366FF","#254EDB","#1939B7","#102693","#091A7A"], # Blue
     ["#F4FDCD","#E7FC9C","#D2F669","#BDED44","#9EE20B","#81C208","#66A205","#4E8303","#3D6C02"], # light Green
@@ -28,6 +29,12 @@ progress_bar_color=[
     ["#FFE7D9","#FFC9B3","#FFA48D","#FF8171","#FF4842","#DB3039","#B72136","#931531","#7A0C2E"]  # Red
     
 ]
+
+# Set Color Order
+if color_order_rise==False:
+    for color_bar in progress_bar_color:
+        color_bar.reverse()
+
 
 # Text Color
 basic_text_color="#000000" # black

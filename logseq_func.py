@@ -37,7 +37,7 @@ def get_task_status(task_detail):
 
 # Main Task List
 def get_maintask_list(page_address,page_name):
-    print("page add" ,page_address, page_name)
+
     log_file=open(page_address+page_name,'r',encoding="utf-8")
     lines=log_file.readlines()
 
@@ -135,7 +135,7 @@ def get_progress_color(main_task_idx,sub_task_idx)->str:
 
 
 def get_directory_todo_list(logseq_folder_addr,progress_page_list,directory):
-        # [1] Searching 'pages' directory
+    # [1] Searching 'pages' directory
     pages_addr=logseq_folder_addr+"\\"+directory #"\\pages"
     
     all_page_list=os.listdir(pages_addr)
@@ -147,9 +147,10 @@ def get_directory_todo_list(logseq_folder_addr,progress_page_list,directory):
         if page not in progress_page_list:
             todo_pages_list.append(page)
 
+    
+    # [2] Get Task list
     all_todolist=[] # todo list with deadline
 
-    # [2] Get Task list
     for td_page in todo_pages_list:
         # [2]-1 Page Open
         td_page_addr=logseq_folder_addr+"\\"+directory+"\\"+td_page
@@ -157,9 +158,23 @@ def get_directory_todo_list(logseq_folder_addr,progress_page_list,directory):
         log_file=open(td_page_addr,'r',encoding="utf-8")
         td_lines=log_file.readlines()
         
+        # [2]-2 Get Task Info
+        '''
+        # Logseeq Syntax Example  
+
+        TODO 프로토 배포
+        DEADLINE: <2024-04-19 Fri>
+
+        # Function Explanin
+        : A Logseq task consists of multiple lines, with each line representing either a task type or deadline.
+        Therefore, if this function detects a task, it has to detect the next line to determine whether deadline 
+        information is included. 
+        '''
+
         for line in td_lines:
             is_get, status,priority,sub_task_name=get_task_status(line)
-
+            
+            # (1) Check Task Type
             if is_get==True:
                 todo_detail={}
                 todo_detail["sub_task_name"]=sub_task_name
@@ -170,19 +185,18 @@ def get_directory_todo_list(logseq_folder_addr,progress_page_list,directory):
                 # sub task condition : Doing or Todo
                 if todo_detail["status"]=="TODO" or todo_detail["status"]=="DOING":
                     all_todolist.append(todo_detail)
-                    
-            else:
-                if len(all_todolist)>=1 and "DEADLINE:" in line:
-                    dead_temp=line[line.index("DEADLINE:")+11:].replace('>','').split(" ")
+
+
+            # (2) Check deadline in next line  
+            if len(all_todolist)>=1 and "DEADLINE:" in line:
+                dead_temp=line[line.index("DEADLINE:")+11:].replace('>','').split(" ")
         
-                    all_todolist[-1]["deadline"]=dead_temp[0].strip()
+                all_todolist[-1]["deadline"]=dead_temp[0].strip()
         
         log_file.close()
 
 
     return all_todolist
-
-
 
 
 def get_todo_list(logseq_folder_addr,progress_page_list):
@@ -244,7 +258,14 @@ def create_task_Table(doc_address,main_task_list):
     # Task Information
     total_task_num=0
     task_start_point=[]
+
+    maintask_name_list=[] # for combo box
+
     for mt_idx in range(len(main_task_list)):
+        # (1) Get Main task name list for combo box 
+        maintask_name_list.append(get_maintask_name(main_task_list,mt_idx))
+    
+        # (2) Calc Task Start Point
         # task total number
         total_task_num=total_task_num+main_task_list[mt_idx]["sub_task_num"]
 
@@ -255,16 +276,10 @@ def create_task_Table(doc_address,main_task_list):
             else:
                 task_start_point.append(task_start_point[-1]+main_task_list[mt_idx-1]["sub_task_num"])
 
-        
-    print("start",task_start_point)
 
     # Create Table Row
     cur_row_idx=0 # current row index
 
-    def calc_rowIdx(mt_idx, st_idx):
-        if mt_idx==0:
-            return st_idx
-        
 
     for mt_idx in range(len(main_task_list)):
         subtask_num=len(main_task_list[mt_idx]["sub_task_list"]) # Sub Task Number
@@ -277,14 +292,11 @@ def create_task_Table(doc_address,main_task_list):
     
             cur_row_idx=cur_row_idx+1     # row count +1
             
-            # Insert Main Task Name at first task line
-            if st_idx==0:
-                main_taskName=get_maintask_name(main_task_list,mt_idx)
-            else:
-                main_taskName=""    
+            # Insert Main Task Name in TR tag
+            main_taskName=get_maintask_name(main_task_list,mt_idx)
 
             # open <tr> tag
-            table_row_start='<tr class="Schedule_Table_ROW{0} {1} {2} {3} Priority_{4}">\n'.format(cur_row_idx,
+            table_row_start='<tr class="Schedule_Table_ROW{0} MAIN_{1}_ {2} {3} Priority_{4}">\n'.format(cur_row_idx,
                                                                                         main_taskName,
                                                                                         sub_task_info["sub_task_name"],
                                                                                         sub_task_info["status"],
@@ -302,7 +314,7 @@ def create_task_Table(doc_address,main_task_list):
                 
                         sub_task_num=len(main_task_list[mt_idx]["sub_task_list"])
 
-                        table_col_main='<td class="MainID" rowspan="{0}" data-subNum="{1}">{2}</td>\n'.format(sub_task_num,sub_task_num,mt_info_display)
+                        table_col_main='<td class="MainID" rowspan="{0}" data-subNum="{1}">{2}</td>\n'.format(sub_task_num, sub_task_num, mt_info_display)
         
                         progress_table_contents_html=progress_table_contents_html+table_col_main
 
@@ -320,6 +332,7 @@ def create_task_Table(doc_address,main_task_list):
                                                                                            main_task_list[mt_idx]["sub_task_list"][st_idx]["sub_task_name"])
         
                     progress_table_contents_html=progress_table_contents_html+table_col_sub
+
 
                 elif day_idx>=2: # Calander Chart
                     cal_day=datetime.today()+timedelta(days=day_idx-2)
@@ -366,6 +379,13 @@ def create_task_Table(doc_address,main_task_list):
     a_num, b_num, c_num, No_num=get_maintask_tasknum(main_task_list)
     tsk_num_detail="({0}/{1}/{2}/{3})".format(a_num, b_num, c_num, No_num)
 
+
+    # Create combo box for task filtering
+    combo_opt=""
+    for mt_name in maintask_name_list:
+        combo_opt=combo_opt+'<option value="{0}">{0}</option>\n'.format(mt_name)
+    
+
     # Create Progress Task Table
     html_func.create_Html(doc_address,"""
     <div>
@@ -380,10 +400,17 @@ def create_task_Table(doc_address,main_task_list):
             <button onclick="Pri_C_btn_click()">C</button>
             <button onclick="Pri_X_btn_click()">X</button>
                           
-            <button onclick="Period_btn_click()">Period</button>          
+            <button onclick="Period_btn_click()">Period</button>
+                                    
+            <select name="task_combo" onchange="task_combo_filtering(this)">
+                <option value="-- ALL --" selected align="center"> -- ALL -- </option>
+                          
+                {0}
+                          
+            </select>
             
-            <span class="Schedule_Table__tskNum Button_SubInfo__font">{0}</span>
-            <span class="Schedule_Table__tskNum_detail Button_SubInfo__font">{1}</span>
+            <span class="Schedule_Table__tskNum Button_SubInfo__font">{1}</span>
+            <span class="Schedule_Table__tskNum_detail Button_SubInfo__font">{2}</span>
                             
         </div>
        
@@ -391,14 +418,15 @@ def create_task_Table(doc_address,main_task_list):
                           
     <table class="Schedule_Table">
         <tr class="Schedule_Table__header">
-            {2}
+            {3}
         </tr>
-            {3}            
+            {4}            
     </table>
-    """.format(a_num+b_num+c_num+No_num,
-               tsk_num_detail,
-               progress_table_header_html,
-               progress_table_contents_html
+    """.format(combo_opt,
+                a_num+b_num+c_num+No_num,
+                tsk_num_detail,
+                progress_table_header_html,
+                progress_table_contents_html
             ))
 
 def create_deadline_todo_Table(doc_address,deadline_tasklist):
@@ -588,11 +616,13 @@ def create_normal_todo_table(doc_address,normal_tasklist):
 
     for nor_todo in normal_tasklist:
         checkbox_html_code="""
-                                <div class="todo_checkbox" style="display: flex;">
-                                    <input type="checkbox" name="{0}", id="{0}"/> 
-                                    <label for="{0}">"{0}"</label>
-                                </div>
-            """.format(nor_todo["sub_task_name"])
+
+            <div class="todo_checkbox" style="display: flex;">
+                <input type="checkbox" name="{0}", id="{0}"/> 
+                <label for="{0}">{0}</label>
+            </div>
+            
+        """.format(nor_todo["sub_task_name"])
 
 
         if nor_todo["priority"]=="A":

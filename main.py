@@ -1,6 +1,7 @@
 
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QLabel
+from PyQt5.QtGui import QIcon
 import os
 import json
 import make_doc
@@ -50,7 +51,7 @@ class MyApp(QWidget):
         self.vbox.addLayout(self.hbox3)
 
         self.setLayout(self.vbox)
-
+        self.setWindowIcon(QIcon('icon.png'))
         self.setWindowTitle('Logseq View')
         self.move(300, 300)
         self.resize(400, 200)

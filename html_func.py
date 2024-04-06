@@ -46,10 +46,11 @@ def set_html_config(doc_addr):
             }
                 
             .Schedule_Table {
-                border-collapse: collapse;
+                border-collapse: separated;
                 table-layout:fixed;
-
+                border-spacing: 0em 0.3em;
                 width:100%;
+
             }
                 
 
@@ -58,7 +59,8 @@ def set_html_config(doc_addr):
                 width: 10%;
                 
                 white-space: nowrap; /* Prevent text from wrapping */
-                
+                overflow: hidden; /* Hide overflow content */
+                text-overflow: ellipsis; /* Show ellipsis (...) for overflow text */
             }
             .Table_Header__Sub{
                 border: 1px solid black;
@@ -73,11 +75,16 @@ def set_html_config(doc_addr):
                 font-size:70%;
                 border: 1px solid black;
             }
-                
             
+
             .MainID {
                 width: 10%;
                 border: 1px solid black;
+
+                
+                white-space: nowrap; /* Prevent text from wrapping */
+                overflow: hidden; /* Hide overflow content */
+                text-overflow: ellipsis; /* Show ellipsis (...) for overflow text */
             }
                 
             .SubID {
@@ -166,8 +173,6 @@ def set_js(doc_addr):
     /* Developer Setting */
 
     PERIOD_MODIFICATION=10;
-    
-    
 
     """
 
@@ -180,8 +185,33 @@ def set_js(doc_addr):
     schedule_table__row_num=schedule_table.rows.length;
     schedule_table__cell_num=schedule_table.rows[0].cells.length;
 
-    // Function Definition
+    /* [Function Definition] */
 
+    // Combo Box Filtering
+    function task_combo_filtering(e){
+        reset_btn_click(); // reset flitering
+
+        const selected_task=e.value;
+      
+        if (selected_task=="-- ALL --"){
+            reset_btn_click(); // reset
+
+        }else{
+            selected_tr_cls='MAIN_' + selected_task + '_';
+
+            for (var i = 1; i < schedule_table__row_num; i++) { // header remain
+                if(schedule_table.rows[i].classList.contains(selected_tr_cls)){
+                    
+                }else{
+                    schedule_table.rows[i].style.display= 'none';
+                }
+            }
+
+        }
+
+    }
+
+    
     function Priority_btn_click(selected_Priority){
         var main_tsk_name;
         var sub_tsk_num;
@@ -238,26 +268,26 @@ def set_js(doc_addr):
 
     // A Priority Filtering
     function Pri_A_btn_click(){
-        reset_btn_click()
-        Priority_btn_click("Priority_A")
+        reset_btn_click();
+        Priority_btn_click("Priority_A");
     }
 
     // B Priority Filtering
     function Pri_B_btn_click(){
-        reset_btn_click()
-        Priority_btn_click("Priority_B")
+        reset_btn_click();
+        Priority_btn_click("Priority_B");
     }
 
     // C Priority Filtering
     function Pri_C_btn_click(){
-        reset_btn_click()
-        Priority_btn_click("Priority_C")
+        reset_btn_click();
+        Priority_btn_click("Priority_C");
     }
 
     // None Priority Filtering
     function Pri_X_btn_click(){
-        reset_btn_click()
-        Priority_btn_click("Priority_None")
+        reset_btn_click();
+        Priority_btn_click("Priority_None");
     }
 
     // Reset Filtering    
