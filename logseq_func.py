@@ -1,11 +1,20 @@
 import viewer_config
 import os
+import re
 from datetime import datetime, timedelta
 import html_func
 import calaner_func
 # task info get
 def get_task_status(task_detail):
 
+    def get_assignee(line):
+        if "@" in line:
+            assignee = re.findall(r'@(\w+)', line)
+            return assignee
+        else:
+            
+            return None
+        
     def get_task_priority(line)->tuple:
         if '[#A]' in line:
             return ('A',line.index('A'))
@@ -18,22 +27,29 @@ def get_task_status(task_detail):
 
     for status in ["TODO","DOING","NOW","DONE","WAITING"]:
         if status in task_detail and "query" not in task_detail:
+            
+
+            # Get Priority
             if get_task_priority(task_detail):
                 priority, prior_idx=get_task_priority(task_detail)
             
             # Get Task Name
             if priority=="None":
                 sub_task_name=task_detail[task_detail.index(status)+len(status):].strip()
-     
-                return (True,status,"None",sub_task_name)
+            
             else:
                 sub_task_name=task_detail[task_detail.index(priority)+len(priority)+1:].strip()
          
-                return (True,status,priority,sub_task_name)
+            # Get Assignee
+            assignee = get_assignee(task_detail)
 
+            if assignee != None:
+                sub_task_name =  re.sub(r'@\w+', '',sub_task_name)
 
+            return (True,status,priority,sub_task_name, assignee)
+        
 
-    return (False,"none",False,False)
+    return (False,"none",False,False,False)
 
 # Main Task List
 def get_maintask_list(page_address,page_name):
@@ -63,13 +79,13 @@ def get_maintask_list(page_address,page_name):
                 
                 for sub_detail in sub_line:
 
-                    is_get, status,priority,sub_task_name=get_task_status(sub_detail)
+                    is_get, status, priority, sub_task_name, assignee=get_task_status(sub_detail)
                     if is_get==True:
                         task_detail={}
                         task_detail["sub_task_name"]=sub_task_name
                         task_detail["status"]=status
                         task_detail["priority"]=priority
-                        
+                        task_detail["assignee"]=assignee
 
                         # sub task condition : Doing or Todo
                         if task_detail["status"]=="TODO" or task_detail["status"]=="DOING":
@@ -172,7 +188,7 @@ def get_directory_todo_list(logseq_folder_addr,progress_page_list,directory):
         '''
 
         for line in td_lines:
-            is_get, status,priority,sub_task_name=get_task_status(line)
+            is_get, status,priority,sub_task_name, assignee=get_task_status(line)
             
             # (1) Check Task Type
             if is_get==True:
@@ -180,7 +196,7 @@ def get_directory_todo_list(logseq_folder_addr,progress_page_list,directory):
                 todo_detail["sub_task_name"]=sub_task_name
                 todo_detail["status"]=status
                 todo_detail["priority"]=priority
-                        
+                todo_detail["assignee"]= assignee
 
                 # sub task condition : Doing or Todo
                 if todo_detail["status"]=="TODO" or todo_detail["status"]=="DOING":
@@ -229,14 +245,23 @@ def create_task_Table(doc_address,main_task_list):
     now=datetime.now() # View from today
 
     progress_table_header_html=''
-    for idx in range(viewer_config.logView_Date_Range+2):
+
+    for idx in range(viewer_config.logView_Date_Range + 3):
 
         if idx==0: # Main Task Name Col
             table_header_line='<th class="Schedule_Table__Mainlist Table_Header__Main">Main Task</th>'
+        
         elif idx==1: # Sub Task
             table_header_line='<th class="Schedule_Table__Sublist Table_Header__Sub">Sub Task</th>'
+
+        elif idx==2: # D-Day
+            table_header_line='<th class="Schedule_Table__D_DAY Table_Header__DDAY">D-Day</th>'
+
+        elif idx==3: # Assignee
+            table_header_line='<th class="Schedule_Table__Assignee Table_Header__ASSIGNEE">Assignee</th>'
+        
         else:      # Day
-            idx_date=now+timedelta(days=idx-2) # from today    
+            idx_date=now+timedelta(days=idx-4) # from today    
             
             what_day=calaner_func.convert_weekday(idx_date.weekday())
             if what_day=="(Sat)" or what_day=="(Sun)":
@@ -296,17 +321,18 @@ def create_task_Table(doc_address,main_task_list):
             main_taskName=get_maintask_name(main_task_list,mt_idx)
 
             # open <tr> tag
-            table_row_start='<tr class="Schedule_Table_ROW{0} MAIN_{1}_ {2} {3} Priority_{4}">\n'.format(cur_row_idx,
+            table_row_start='<tr class="Schedule_Table_ROW{0} MAIN_{1}_ {2} {3} Priority_{4} assignee_{5}">\n'.format(cur_row_idx,
                                                                                         main_taskName,
                                                                                         sub_task_info["sub_task_name"],
                                                                                         sub_task_info["status"],
                                                                                         sub_task_info["priority"],
+                                                                                        sub_task_info["assignee"]
                                                                                         )
             
             
             progress_table_contents_html=progress_table_contents_html+table_row_start
 
-            for day_idx in range(viewer_config.logView_Date_Range+2):
+            for day_idx in range(viewer_config.logView_Date_Range+3):
                 if day_idx==0: # main task name
 
                     if cur_row_idx-1 in task_start_point:
@@ -333,25 +359,58 @@ def create_task_Table(doc_address,main_task_list):
         
                     progress_table_contents_html=progress_table_contents_html+table_col_sub
 
-
-                elif day_idx>=2: # Calander Chart
-                    cal_day=datetime.today()+timedelta(days=day_idx-2)
-                    task_bg_color=viewer_config.basic_bar_color
+                elif day_idx==2: # D-Day
+                    cal_day=datetime.today()+timedelta() # today
                     delay_inf=""
-
+                    
                     # check1 deadline
                     if "deadline" in main_task_list[mt_idx]["sub_task_list"][st_idx]:
-                            
+                        
+                        sub_deadline = main_task_list[mt_idx]["sub_task_list"][st_idx]["deadline"]
                         # task deadline
-                        deadline_dateformed=datetime.strptime(main_task_list[mt_idx]["sub_task_list"][st_idx]["deadline"],viewer_config.logView_date_format)
+                        deadline_dateformed=datetime.strptime(sub_deadline,viewer_config.logView_date_format)
 
                         date_diff=deadline_dateformed-cal_day
                         
                         # Delay Check
                         delayed_day=(datetime.today()-deadline_dateformed).days
-                        if (cal_day==datetime.today() and delayed_day>=0): #delay situation
-                            delay_inf="+"+str(delayed_day)
+                        if (delayed_day>=0): #delay situation
+                            delay_inf= "[" + sub_deadline+ "] " + "+" +str(delayed_day)
+                        else:
+                            delay_inf= "[" + sub_deadline+ "] " + str(delayed_day)
+
+                    table_col_day='<td class="Table_Day">{0}</td>\n'.format(delay_inf)
+                    
+                    progress_table_contents_html=progress_table_contents_html+table_col_day
+
+
+                elif day_idx==3: # Assignee
+                    if main_task_list[mt_idx]["sub_task_list"][st_idx]["assignee"] != None:
+                        assignee_list = main_task_list[mt_idx]["sub_task_list"][st_idx]["assignee"]
+
+                        assignee=""
+                        for assig in assignee_list:
+                            assignee=assignee+assig+", "
+                    else:
+                        assignee = ""
+
+                    table_col_assignee='<td class="Assignee">{0}</td>\n'.format(assignee)
                 
+                    progress_table_contents_html=progress_table_contents_html + table_col_assignee
+
+
+                elif day_idx>=4: # Calander Chart
+                    cal_day=datetime.today()+timedelta(days=day_idx-4)
+                    task_bg_color=viewer_config.basic_bar_color
+                   
+
+                    # check Deadline
+                    if "deadline" in main_task_list[mt_idx]["sub_task_list"][st_idx]:
+                         # task deadline
+                        deadline_dateformed=datetime.strptime(main_task_list[mt_idx]["sub_task_list"][st_idx]["deadline"],viewer_config.logView_date_format)
+
+                        date_diff=deadline_dateformed-cal_day
+
                         # Decide cell color
                         if sub_task_info["status"]=="DOING":
 
@@ -364,8 +423,10 @@ def create_task_Table(doc_address,main_task_list):
                                 task_bg_color=get_progress_color(mt_idx,st_idx)
                 
 
-                    table_col_day='<td class="Table_Day" bgcolor="{0}">{1}</td>\n'.format(task_bg_color,
-                                                                                          delay_inf)
+                    
+
+                    table_col_day='<td class="Table_Day" bgcolor="{0}"></td>\n'.format(task_bg_color)
+                                                                                        
                     
                     progress_table_contents_html=progress_table_contents_html+table_col_day
             

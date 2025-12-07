@@ -62,6 +62,7 @@ def set_html_config(doc_addr):
                 overflow: hidden; /* Hide overflow content */
                 text-overflow: ellipsis; /* Show ellipsis (...) for overflow text */
             }
+                
             .Table_Header__Sub{
                 border: 1px solid black;
                 width: 10%;
@@ -71,6 +72,29 @@ def set_html_config(doc_addr):
                 text-overflow: ellipsis; /* Show ellipsis (...) for overflow text */
                
             }
+                
+            .Table_Header__DDAY{
+                border: 1px solid black;
+                width: 5%;
+
+                white-space: nowrap; /* Prevent text from wrapping */
+                overflow: hidden; /* Hide overflow content */
+                text-overflow: ellipsis; /* Show ellipsis (...) for overflow text */
+               
+            }
+                
+            .Table_Header__ASSIGNEE{
+                border: 1px solid black;
+                width: 5%;
+
+                white-space: nowrap; /* Prevent text from wrapping */
+                overflow: hidden; /* Hide overflow content */
+                text-overflow: ellipsis; /* Show ellipsis (...) for overflow text */
+               
+            }
+
+
+
             .Table_Header__Day{
                 font-size:70%;
                 border: 1px solid black;
